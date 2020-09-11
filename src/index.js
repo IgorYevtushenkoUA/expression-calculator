@@ -8,6 +8,8 @@ const MATH_OPERATION_PRIORITY = {
     '*': 3,
     '-': 2,
     '+': 2,
+    '(': 1,
+    ')': 1,
 }
 
 /***
@@ -28,9 +30,15 @@ const isMathOperation = (item) => {
             return false
     }
 }
+const isBrackets = (item) => {
+    return (item === '(' || item === ')')
+}
+const notBrackets = (item) => {
+    return !isBrackets(item)
+}
 
 const isNumber = (item) => {
-    return !isMathOperation(item)
+    return !isMathOperation(item) && !isBrackets(item)
 }
 /**
  * depend of math operation -> do math action
@@ -42,13 +50,13 @@ const isNumber = (item) => {
 const doOperation = (operation, x, y) => {
     switch (operation) {
         case '/':
-            return x / y
+            return (x / y)
         case '*':
-            return x * y
+            return (x * y)
         case '-':
-            return x - y
+            return (x - y)
         case '+':
-            return x + y
+            return (x + y)
     }
 }
 
@@ -119,6 +127,8 @@ const transformExpressionByReversedPolandNotation = (expr) => {
                     current.push(stack.pop())
                 }
                 stack.pop()
+            } else if (stack.length === 0) {
+                stack.push(item)
             } else if (MATH_OPERATION_PRIORITY[item] > MATH_OPERATION_PRIORITY[stack[stack.length - 1]]) {
                 stack.push(item)
             } else if (MATH_OPERATION_PRIORITY[item] === MATH_OPERATION_PRIORITY[stack[stack.length - 1]]) {
@@ -150,8 +160,8 @@ const transformReversedPolandNotationToValue = (current) => {
         if (isNumber(item)) {
             answer.push(item)
         } else {
-            let y = answer.pop()
-            let x = answer.pop()
+            let y = parseFloat(answer.pop())
+            let x = parseFloat(answer.pop())
             let res = doOperation(item, x, y)
             answer.push(res)
         }
@@ -167,6 +177,8 @@ function expressionCalculator(expr) {
     let answer = transformReversedPolandNotationToValue(current)
     return answer
 }
+
+console.log(expressionCalculator(' 20 - 57 * 12 - (  58 + 84 * 32 / 27  ) '))
 
 module.exports = {
     expressionCalculator
